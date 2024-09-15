@@ -1,5 +1,7 @@
 import openai
 import os
+import PyPDF2
+import pandas as pd
 
 
 class OpenAIService:
@@ -63,3 +65,47 @@ class OpenAIService:
             return response["choices"][0]["message"]["content"]
         except Exception as e:
             return f"Error al comunicarse con OpenAI: {e}"
+
+    def leer_pdf(self, file_path):
+        """
+        Lee el contenido de un archivo PDF y lo devuelve como texto.
+        """
+        try:
+            with open(file_path, "rb") as file:
+                reader = PyPDF2.PdfReader(file)
+                text = ""
+                for page_num in range(len(reader.pages)):
+                    page = reader.pages[page_num]
+                    text += page.extract_text()
+            return text
+        except Exception as e:
+            return f"Error al leer el archivo PDF: {e}"
+
+    def leer_excel(self, file_path):
+        """
+        Lee el contenido de un archivo Excel y lo devuelve como texto.
+        """
+        try:
+            df = pd.read_excel(file_path)
+            # Convertir el DataFrame a texto de forma sencilla
+            text = df.to_string(index=False)
+            return text
+        except Exception as e:
+            return f"Error al leer el archivo Excel: {e}"
+
+    def procesar_archivo_y_responder(self, file_path, file_type):
+        """
+        Lee el contenido de un archivo (PDF o Excel), envía el contenido a OpenAI, y devuelve la respuesta.
+        """
+        if file_type == "pdf":
+            contenido = self.leer_pdf(file_path)
+        elif file_type == "excel":
+            contenido = self.leer_excel(file_path)
+        else:
+            return "Tipo de archivo no soportado."
+
+        # Enviamos el contenido leído a OpenAI para obtener una respuesta
+        if contenido:
+            return self.obtener_respuesta(contenido)
+        else:
+            return "No se pudo obtener contenido del archivo."
