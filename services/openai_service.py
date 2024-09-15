@@ -1,6 +1,7 @@
 import openai
 import os
 
+
 class OpenAIService:
     def __init__(self):
         # Inicializamos la clave de API desde una variable de entorno
@@ -45,3 +46,20 @@ class OpenAIService:
             print("Historial guardado en 'historial_conversacion.txt'.")
 
         print("La conversación ha finalizado.")
+
+    def obtener_respuesta(self, prompt):
+        """
+        Método simplificado que envía un mensaje a OpenAI y devuelve solo la respuesta.
+        No guarda historial ni realiza acciones adicionales.
+        """
+        try:
+            # Hacemos la llamada a la API de OpenAI con solo el mensaje actual
+            response = openai.ChatCompletion.create(
+                model="gpt-4",
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=150,
+            )
+            # Devolvemos solo la respuesta sin historial
+            return response["choices"][0]["message"]["content"]
+        except Exception as e:
+            return f"Error al comunicarse con OpenAI: {e}"
