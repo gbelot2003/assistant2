@@ -2,6 +2,7 @@ import openai
 import os
 import PyPDF2
 import pandas as pd
+import chromadb
 
 
 class OpenAIService:
@@ -9,6 +10,11 @@ class OpenAIService:
         # Inicializamos la clave de API desde una variable de entorno
         openai.api_key = os.getenv("OPENAI_API_KEY")
         self.conversation_history = []
+
+        # Inicializamos ChromaDB
+        self.chroma_client = chromadb.Client()
+        self.collection = self.chroma_client.create_collection("archivo_contenido")
+
 
     def enviar_mensaje(self, prompt):
         """
@@ -97,7 +103,36 @@ class OpenAIService:
             return text
         except Exception as e:
             return f"Error al leer el archivo Excel: {e}"
-        
+
+    def procesar_archivo_y_guardar_en_chroma(self, file_path, file_type):
+        """
+        Lee el contenido de un archivo (PDF o Excel) y lo guarda en ChromaDB.
+        """
+        if file_type == "pdf":
+            contenido = self.leer_pdf(file_path)
+        elif file_type == "excel":
+            contenido = self.leer_excel(file_path)
+        else:
+            return "Tipo de archivo no soportado."
+
+        if "Error" in contenido:
+            return contenido
+
+        # Almacenamos el contenido en ChromaDB
+        self.collection.add(
+            documents=[contenido],
+            metadatas=[{"file_path": file_path, "file_type": file_type}],
+            ids=[file_path]  # Usamos la ruta como ID único
+        )
+        return f"Contenido de {file_path} guardado en ChromaDB."
+
+    def obtener_contenido_desde_chroma(self):
+        """
+        Recupera todo el contenido guardado en ChromaDB.
+        """
+        results = self.collection.get()
+        contenidos = [doc for doc in results["documents"]]
+        return "\n".join(contenidos)
 
     def procesar_archivo_y_responder(self, file_path, file_type):
         """
