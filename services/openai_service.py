@@ -57,7 +57,7 @@ class OpenAIService:
         try:
             # Hacemos la llamada a la API de OpenAI con solo el mensaje actual
             response = openai.ChatCompletion.create(
-                model="gpt-4",
+                model="gpt-3.5-turbo",
                 messages=[{"role": "user", "content": prompt}],
                 max_tokens=150,
             )
@@ -71,12 +71,17 @@ class OpenAIService:
         Lee el contenido de un archivo PDF y lo devuelve como texto.
         """
         try:
-            with open(file_path, "rb") as file:
+            with open(file_path, 'rb') as file:
                 reader = PyPDF2.PdfReader(file)
-                text = ""
+                text = ''
                 for page_num in range(len(reader.pages)):
                     page = reader.pages[page_num]
-                    text += page.extract_text()
+                    # Extraemos el texto de cada página y lo limpiamos
+                    page_text = page.extract_text()
+                    if page_text:
+                        text += page_text.strip() + "\n"
+            if not text:
+                return "Error: No se pudo extraer texto del archivo PDF."
             return text
         except Exception as e:
             return f"Error al leer el archivo PDF: {e}"
@@ -92,6 +97,7 @@ class OpenAIService:
             return text
         except Exception as e:
             return f"Error al leer el archivo Excel: {e}"
+        
 
     def procesar_archivo_y_responder(self, file_path, file_type):
         """

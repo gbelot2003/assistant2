@@ -1,3 +1,4 @@
+import os
 from services.openai_service import OpenAIService
 
 # Inicializamos el servicio de OpenAI
@@ -6,17 +7,32 @@ service = OpenAIService()
 # Función para cargar archivos automáticamente y obtener el contenido
 def cargar_archivos_al_iniciar():
     archivos = [
-        {"ruta": "Encomiendas_Express-B.pdf", "tipo": "pdf"},   # Cambia las rutas por los archivos reales
-        #{"ruta": "ruta/del/archivo2.xlsx", "tipo": "excel"}
+        {"ruta": "files/Encomiendas_Express-B.pdf", "tipo": "pdf"},   # Cambia las rutas por los archivos reales
+         #{"ruta": "ruta/del/archivo2.xlsx", "tipo": "excel"}
     ]
     
     contenido_completo = ""
-    
+
     for archivo in archivos:
-        contenido = service.procesar_archivo_y_responder(archivo["ruta"], archivo["tipo"])
-        contenido_completo += f"\n{contenido}"  # Concatenamos todo el contenido leído
+        ruta = archivo["ruta"]
+        tipo = archivo["tipo"]
+
+        # Verificamos si el archivo existe
+        if not os.path.exists(ruta):
+            print(f"Error: El archivo {ruta} no se encontró.")
+            continue  # Pasamos al siguiente archivo si no existe
+
+        # Procesamos el archivo si existe
+        contenido = service.procesar_archivo_y_responder(ruta, tipo)
+
+        # Validamos si hubo un error al procesar el archivo
+        if "Error" in contenido:
+            print(f"Error al procesar {ruta}: {contenido}")
+        else:
+            contenido_completo += f"\n{contenido}"  # Concatenamos todo el contenido leído
     
-    return contenido_completo
+    return contenido_completo if contenido_completo else "No se cargó contenido de los archivos."
+
 
 # Función para la consola interactiva
 def interactive_console():
