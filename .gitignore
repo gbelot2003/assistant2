@@ -1,4 +1,5 @@
 venv
 .env
 services/__pycache__
+models/__pycache__
 database.sqlite
