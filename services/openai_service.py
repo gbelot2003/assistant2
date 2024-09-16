@@ -15,7 +15,6 @@ class OpenAIService:
         self.chroma_client = chromadb.Client()
         self.collection = self.chroma_client.create_collection("archivo_contenido")
 
-
     def enviar_mensaje(self, prompt):
         """
         Envía un mensaje a OpenAI combinando la consulta del usuario con el contenido almacenado en ChromaDB.
@@ -63,17 +62,25 @@ class OpenAIService:
 
     def obtener_respuesta(self, prompt):
         """
-        Método simplificado que envía un mensaje a OpenAI y devuelve solo la respuesta.
+        Método simplificado que envía un mensaje a OpenAI combinando la consulta del usuario con el contenido almacenado en ChromaDB.
         No guarda historial ni realiza acciones adicionales.
         """
+        # Recuperamos el contenido almacenado en ChromaDB
+        contenido_archivos = self.obtener_contenido_desde_chroma()
+
+        # Combinamos el contenido de los archivos con el prompt del usuario
+        mensaje_completo = f"{contenido_archivos}\n{prompt}"
+
         try:
-            # Hacemos la llamada a la API de OpenAI con solo el mensaje actual
+            # Hacemos la llamada a la API de OpenAI combinando el contenido de ChromaDB y el mensaje del usuario
             response = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",
-                messages=[{"role": "user", "content": prompt}],
+                messages=[
+                    {"role": "user", "content": mensaje_completo}
+                ],  # Enviamos el mensaje combinado
                 max_tokens=150,
             )
-            # Devolvemos solo la respuesta sin historial
+            # Devolvemos solo la respuesta sin guardar el historial
             return response["choices"][0]["message"]["content"]
         except Exception as e:
             return f"Error al comunicarse con OpenAI: {e}"
@@ -83,9 +90,9 @@ class OpenAIService:
         Lee el contenido de un archivo PDF y lo devuelve como texto.
         """
         try:
-            with open(file_path, 'rb') as file:
+            with open(file_path, "rb") as file:
                 reader = PyPDF2.PdfReader(file)
-                text = ''
+                text = ""
                 for page_num in range(len(reader.pages)):
                     page = reader.pages[page_num]
                     page_text = page.extract_text()
@@ -127,10 +134,10 @@ class OpenAIService:
         self.collection.add(
             documents=[contenido],
             metadatas=[{"file_path": file_path, "file_type": file_type}],
-            ids=[file_path]  # Usamos la ruta como ID único
+            ids=[file_path],  # Usamos la ruta como ID único
         )
         return f"Contenido de {file_path} guardado en ChromaDB."
-    
+
     def obtener_contenido_desde_chroma(self):
         """
         Recupera todo el contenido guardado en ChromaDB.
@@ -141,7 +148,7 @@ class OpenAIService:
             return "\n".join(contenidos)
         except Exception as e:
             return f"Error al recuperar contenido de ChromaDB: {e}"
-        
+
     def cargar_archivos(self, archivos):
         """
         Carga varios archivos y los almacena en ChromaDB.
@@ -156,7 +163,7 @@ class OpenAIService:
 
             resultado = self.procesar_archivo_y_guardar_en_chroma(ruta, tipo)
             print(resultado)
-            
+
     def procesar_archivo_y_responder(self, file_path, file_type):
         """
         Lee el contenido de un archivo (PDF o Excel), envía el contenido a OpenAI, y devuelve la respuesta.
