@@ -3,3 +3,4 @@ venv
 services/__pycache__
 models/__pycache__
 database.sqlite
+models/__pycache__/models.cpython-312.pyc
