@@ -1,13 +1,16 @@
+import os
 from flask import Flask, render_template
 from flask_socketio import SocketIO, send
 from services.openai_service import OpenAIService
-import os
+from services.conversation_service import ConversationService
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
+
 # Inicializamos el servicio de OpenAI
 service = OpenAIService()
+conversation_service = ConversationService()
 
 
 # Función para cargar archivos automáticamente y guardarlos en ChromaDB
@@ -37,12 +40,26 @@ def index():
 # Evento de mensaje recibido en el WebSocket
 @socketio.on('message')
 def handle_message(msg):
+    conversation_id = None
+
+    # Si el mensaje es un diccionario, extraemos el ID de conversación
+    if isinstance(msg, dict) and 'conversation_id' in msg:
+        conversation_id = msg['conversation_id']
+        user_message = msg['message']
+    else:
+        user_message = msg
+
     # Cargamos los archivos automáticamente al inicio
     cargar_archivos_al_iniciar()
     
-    print(f"Mensaje recibido: {msg}")
+    print(f"Mensaje recibido: {user_message}")
 
-    response = service.enviar_mensaje(msg)
+    response = service.enviar_mensaje(user_message)
+
+    # Guardamos la conversación en la base de datos
+    conversation_id = conversation_service.guardar_conversacion(user_message, response, conversation_id)
+
+    print(f"Mensaje Chatgpt: {response}")
 
     send(response, broadcast=True)  # Enviar mensaje a todos los clientes conectados
 
