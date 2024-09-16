@@ -18,14 +18,20 @@ class OpenAIService:
 
     def enviar_mensaje(self, prompt):
         """
-        Envía un mensaje a OpenAI y obtiene la respuesta.
+        Envía un mensaje a OpenAI combinando la consulta del usuario con el contenido almacenado en ChromaDB.
         """
-        self.conversation_history.append({"role": "user", "content": prompt})
+        # Recuperamos el contenido almacenado en ChromaDB
+        contenido_archivos = self.obtener_contenido_desde_chroma()
+
+        # Combinamos el contenido de los archivos con el prompt del usuario
+        mensaje_completo = f"{contenido_archivos}\n{prompt}"
+
+        self.conversation_history.append({"role": "user", "content": mensaje_completo})
 
         try:
             # Llamamos a la API de OpenAI con el historial de la conversación
             response = openai.ChatCompletion.create(
-                model="gpt-4",
+                model="gpt-3.5-turbo",
                 messages=self.conversation_history,
                 max_tokens=150,  # Puedes ajustar según la necesidad
             )
@@ -82,7 +88,6 @@ class OpenAIService:
                 text = ''
                 for page_num in range(len(reader.pages)):
                     page = reader.pages[page_num]
-                    # Extraemos el texto de cada página y lo limpiamos
                     page_text = page.extract_text()
                     if page_text:
                         text += page_text.strip() + "\n"
@@ -125,15 +130,33 @@ class OpenAIService:
             ids=[file_path]  # Usamos la ruta como ID único
         )
         return f"Contenido de {file_path} guardado en ChromaDB."
-
+    
     def obtener_contenido_desde_chroma(self):
         """
         Recupera todo el contenido guardado en ChromaDB.
         """
-        results = self.collection.get()
-        contenidos = [doc for doc in results["documents"]]
-        return "\n".join(contenidos)
+        try:
+            results = self.collection.get()
+            contenidos = [doc for doc in results["documents"]]
+            return "\n".join(contenidos)
+        except Exception as e:
+            return f"Error al recuperar contenido de ChromaDB: {e}"
+        
+    def cargar_archivos(self, archivos):
+        """
+        Carga varios archivos y los almacena en ChromaDB.
+        """
+        for archivo in archivos:
+            ruta = archivo["ruta"]
+            tipo = archivo["tipo"]
 
+            if not os.path.exists(ruta):
+                print(f"Error: El archivo {ruta} no se encontró.")
+                continue
+
+            resultado = self.procesar_archivo_y_guardar_en_chroma(ruta, tipo)
+            print(resultado)
+            
     def procesar_archivo_y_responder(self, file_path, file_type):
         """
         Lee el contenido de un archivo (PDF o Excel), envía el contenido a OpenAI, y devuelve la respuesta.
