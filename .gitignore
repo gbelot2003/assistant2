@@ -3,3 +3,6 @@ venv
 services/__pycache__
 models/__pycache__
 database.sqlite
+models/__pycache__/*
+cargados.json
+cargados.json
