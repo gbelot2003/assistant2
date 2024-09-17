@@ -21,7 +21,7 @@ class OpenAIService:
         """
         # Recuperamos el contenido almacenado en ChromaDB
         contenido_archivos = self.obtener_contenido_desde_chroma()
-        print(f"Obteniendo datos {contenido_archivos}")
+        #print(f"Obteniendo datos {contenido_archivos}")
 
         # Combinamos el contenido de los archivos con el prompt del usuario
         mensaje_completo = f"{contenido_archivos}\n{prompt}"
