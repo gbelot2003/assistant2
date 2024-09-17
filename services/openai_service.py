@@ -150,7 +150,7 @@ class OpenAIService:
         try:
             results = self.collection.get()
             contenidos = [doc for doc in results["documents"]]
-            print(f"Contenido recuperado de ChromaDB: {contenidos}")
+            #print(f"Contenido recuperado de ChromaDB: {contenidos}")
             print("ejecutando obtener_contenido_desde_chroma")
             return "\n".join(contenidos)
         except Exception as e:
