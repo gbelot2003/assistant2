@@ -7,6 +7,9 @@ socketio = SocketIO()
 def init_socketio(app, service, conversation_service):
     socketio.init_app(app)
 
+    # Cargar archivos al iniciar la aplicación (una vez)
+    cargar_archivos_al_iniciar(service)
+
     @socketio.on("message")
     def handle_message(msg):
         conversation_id = None
@@ -19,19 +22,12 @@ def init_socketio(app, service, conversation_service):
         else:
             user_message = msg
 
-        # Cargar archivos antes de procesar el mensaje
-        cargar_archivos_al_iniciar(service)
-
-        print(f"User message: {user_message}")
-
-        # Procesar el mensaje a través del action_service
-        response = procesar_mensaje(user_message)
+        # Procesar el mensaje a través del action_service y ChatGPT
+        response = procesar_mensaje(user_message, service)
 
         # Guardar la conversación
         conversation_id = conversation_service.guardar_conversacion(user_message, response, conversation_id)
 
-        print(f"ChatGpt: {response}")
-        
         send(response, broadcast=True)
 
     return socketio

@@ -2,10 +2,10 @@
 
 from services.api_service import manejar_solicitud_api
 from services.action_url_service import obtener_url_por_accion
-
+from services.file_service import obtener_datos_cargados  # Importar los datos cargados
 
 # Función para procesar el mensaje del usuario
-def procesar_mensaje(user_message):
+def procesar_mensaje(user_message, chatgpt_service):
     # Detectar la acción solicitada en el mensaje del usuario
     accion_detectada = detectar_accion_en_mensaje(user_message)
 
@@ -24,8 +24,17 @@ def procesar_mensaje(user_message):
         else:
             return f"No se ha configurado una URL para la acción '{accion_detectada}'"
     else:
-        return "No se detectó ninguna acción en el mensaje."
+        # Si no se detecta ninguna acción, devolver la respuesta normal del ChatGPT
+        respuesta_chatgpt = chatgpt_service.obtener_respuesta(user_message)
 
+        # Incluir datos cargados en las respuestas si son relevantes
+        datos_cargados = obtener_datos_cargados()
+        if datos_cargados:
+            respuesta_chatgpt += "\n\nInformación adicional disponible:\n"
+            for archivo, datos in datos_cargados.items():
+                respuesta_chatgpt += f"Archivo: {archivo} - Datos: {datos}\n"
+
+        return respuesta_chatgpt
 
 # Función para detectar la acción solicitada en el mensaje
 def detectar_accion_en_mensaje(mensaje):
@@ -35,8 +44,6 @@ def detectar_accion_en_mensaje(mensaje):
             return accion
     return None
 
-
 # Función para extraer los datos del mensaje en caso de ser POST
 def obtener_data_del_mensaje(mensaje):
-    # Lógica para extraer datos del mensaje si es necesario
     return {"ejemplo_clave": "ejemplo_valor"}  # Datos de ejemplo

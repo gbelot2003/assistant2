@@ -4,7 +4,7 @@
 ACCIONES_URLS = {
     "enviar cotización": {
         "metodo": "POST",
-        "url": "https://api.example.com/enviar_cotizacion"
+        "url": "https://webhook.site/da11f8eb-7965-4c07-921d-419732540da6"
     },
     "consultar precios": {
         "metodo": "GET",
