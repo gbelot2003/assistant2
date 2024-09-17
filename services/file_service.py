@@ -14,14 +14,15 @@ def cargar_archivos_al_iniciar(service):
     ]
 
     archivos_cargados = cargar_archivos_cargados()
+    print("cargar_archivos_al_iniciar")
 
     for archivo in archivos:
         ruta = archivo["ruta"]
         tipo = archivo["tipo"]
 
-        if ruta in archivos_cargados:
-            print(f"El archivo {ruta} ya ha sido procesado previamente. Saltando...")
-            continue
+        #if ruta in archivos_cargados:
+        #    print(f"El archivo {ruta} ya ha sido procesado previamente. Saltando...")
+        #    continue
 
         if not os.path.exists(ruta):
             print(f"Error: El archivo {ruta} no se encontró.")

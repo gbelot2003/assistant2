@@ -25,7 +25,7 @@ def procesar_mensaje(user_message, chatgpt_service):
             return f"No se ha configurado una URL para la acción '{accion_detectada}'"
     else:
         # Si no se detecta ninguna acción, devolver la respuesta normal del ChatGPT
-        respuesta_chatgpt = chatgpt_service.obtener_respuesta(user_message)
+        respuesta_chatgpt = chatgpt_service.enviar_mensaje(user_message)
 
         # Incluir datos cargados en las respuestas si son relevantes
         datos_cargados = obtener_datos_cargados()

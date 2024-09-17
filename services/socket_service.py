@@ -25,7 +25,7 @@ def init_socketio(app, service, conversation_service):
         # Procesar el mensaje a través del action_service y ChatGPT
         response = procesar_mensaje(user_message, service)
 
-        # Guardar la conversación
+        # Guardar la conversación en db
         conversation_id = conversation_service.guardar_conversacion(user_message, response, conversation_id)
 
         send(response, broadcast=True)

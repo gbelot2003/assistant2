@@ -21,6 +21,7 @@ class OpenAIService:
         """
         # Recuperamos el contenido almacenado en ChromaDB
         contenido_archivos = self.obtener_contenido_desde_chroma()
+        print(f"Obteniendo datos {contenido_archivos}")
 
         # Combinamos el contenido de los archivos con el prompt del usuario
         mensaje_completo = f"{contenido_archivos}\n{prompt}"
@@ -117,10 +118,8 @@ class OpenAIService:
         except Exception as e:
             return f"Error al leer el archivo Excel: {e}"
 
+
     def procesar_archivo_y_guardar_en_chroma(self, file_path, file_type):
-        """
-        Lee el contenido de un archivo (PDF o Excel) y lo guarda en ChromaDB.
-        """
         if file_type == "pdf":
             contenido = self.leer_pdf(file_path)
         elif file_type == "excel":
@@ -132,11 +131,16 @@ class OpenAIService:
             return contenido
 
         # Almacenamos el contenido en ChromaDB
-        self.collection.add(
-            documents=[contenido],
-            metadatas=[{"file_path": file_path, "file_type": file_type}],
-            ids=[file_path],  # Usamos la ruta como ID único
-        )
+        try:
+            self.collection.add(
+                documents=[contenido],
+                metadatas=[{"file_path": file_path, "file_type": file_type}],
+                ids=[file_path],  # Usamos la ruta como ID único
+            )
+            print(f"Contenido de {file_path} guardado en ChromaDB.")
+        except Exception as e:
+            print(f"Error al guardar en ChromaDB: {e}")
+
         return f"Contenido de {file_path} guardado en ChromaDB."
 
     def obtener_contenido_desde_chroma(self):
@@ -146,8 +150,11 @@ class OpenAIService:
         try:
             results = self.collection.get()
             contenidos = [doc for doc in results["documents"]]
+            print(f"Contenido recuperado de ChromaDB: {contenidos}")
+            print("ejecutando obtener_contenido_desde_chroma")
             return "\n".join(contenidos)
         except Exception as e:
+            print(f"Error al recuperar contenido de ChromaDB: {e}")
             return f"Error al recuperar contenido de ChromaDB: {e}"
 
     def cargar_archivos(self, archivos):
