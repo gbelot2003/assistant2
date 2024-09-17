@@ -1,5 +1,6 @@
 # email_service.py
 import re
+import os
 import smtplib
 from email.mime.text import MIMEText
 
@@ -12,8 +13,8 @@ def es_email_valido(email):
 
 # Función para enviar correos electrónicos
 def enviar_correo(destinatario, asunto, mensaje):
-    remitente = "tu_correo@gmail.com"  # Cambia esto por tu correo
-    password = "tu_contraseña"  # Cambia esto por tu contraseña
+    remitente = os.getenv("GOOGLE_EMAIL")  # Cambia esto por tu correo
+    password = os.getenv("GOOGLE_PASS")  # Cambia esto por tu contraseña
 
     # Configurar el mensaje
     msg = MIMEText(mensaje)
