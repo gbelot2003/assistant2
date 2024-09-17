@@ -29,10 +29,13 @@ def procesar_mensaje(user_message, chatgpt_service):
 
         # Incluir datos cargados en las respuestas si son relevantes
         datos_cargados = obtener_datos_cargados()
-        if datos_cargados:
-            respuesta_chatgpt += "\n\nInformación adicional disponible:\n"
-            for archivo, datos in datos_cargados.items():
-                respuesta_chatgpt += f"Archivo: {archivo} - Datos: {datos}\n"
+        if "precios" in user_message.lower() or "encomiendas" in user_message.lower():
+            if datos_cargados:
+                respuesta_chatgpt += "\n\nInformación disponible sobre encomiendas:\n"
+                for archivo, datos in datos_cargados.items():
+                    respuesta_chatgpt += f"Archivo: {archivo} - Datos: {datos}\n"
+            else:
+                respuesta_chatgpt += "\nNo se han encontrado datos cargados sobre encomiendas."
 
         return respuesta_chatgpt
 

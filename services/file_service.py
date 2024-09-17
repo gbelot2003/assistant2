@@ -8,7 +8,7 @@ datos_cargados = {}  # Variable global para almacenar los datos cargados
 
 # Función para cargar archivos solo si no han sido procesados previamente
 def cargar_archivos_al_iniciar(service):
-    global datos_cargados
+    global datos_cargados  # Asegurarse de que estamos usando la variable global
     archivos = [
         {"ruta": "files/Encomiendas_Express-B.pdf", "tipo": "pdf"},  # Añade más archivos si es necesario
     ]
@@ -35,7 +35,7 @@ def cargar_archivos_al_iniciar(service):
             guardar_archivos_cargados(archivos_cargados)
 
             # Guardamos los datos procesados en la variable global
-            datos_cargados[ruta] = resultado  # Podría ser un objeto o los datos relevantes
+            datos_cargados[ruta] = resultado  # Los datos cargados se almacenan aquí
         except Exception as e:
             print(f"Error al procesar el archivo {ruta}: {str(e)}")
 
@@ -43,6 +43,7 @@ def cargar_archivos_al_iniciar(service):
 def obtener_datos_cargados():
     global datos_cargados
     return datos_cargados
+
 
 # Función para cargar los archivos ya procesados desde un archivo JSON
 def cargar_archivos_cargados():
